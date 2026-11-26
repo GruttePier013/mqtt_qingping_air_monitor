@@ -1,0 +1,59 @@
+name: Windows GUI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+    paths:
+      - "tools/qingping-provision/**"
+      - "custom_components/qingping_cgdn1/ble_provision.py"
+      - ".github/workflows/windows-gui.yml"
+  pull_request:
+    paths:
+      - "tools/qingping-provision/**"
+      - "custom_components/qingping_cgdn1/ble_provision.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # attach the exe to releases on tags
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: tools/qingping-provision
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: python -m pip install -r requirements.txt pyinstaller
+      - name: Smoke test (script)
+        run: |
+          $p = Start-Process python -ArgumentList 'qingping_provision_gui.py','--selftest' -PassThru -NoNewWindow
+          if (-not $p.WaitForExit(60000)) { $p.Kill(); throw "GUI did not close" }
+          if ($p.ExitCode -ne 0) { throw "selftest failed ($($p.ExitCode))" }
+      - name: Build exe
+        run: |
+          Copy-Item ..\..\custom_components\qingping_cgdn1\ble_provision.py .
+          pyinstaller --noconfirm --onefile --windowed --name QingpingProvision `
+            --icon app.ico --add-data "app.ico;." --add-data "ble_provision.py;." `
+            --hidden-import qingping_provision --collect-all bleak --collect-submodules winrt `
+            qingping_provision_gui.py
+      - name: Smoke test (exe)
+        run: |
+          $p = Start-Process dist\QingpingProvision.exe -ArgumentList '--selftest' -PassThru
+          if (-not $p.WaitForExit(90000)) { $p.Kill(); throw "exe did not close" }
+          if ($p.ExitCode -ne 0) { throw "exe selftest failed ($($p.ExitCode))" }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: QingpingProvision-windows
+          path: tools/qingping-provision/dist/QingpingProvision.exe
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: tools/qingping-provision/dist/QingpingProvision.exe

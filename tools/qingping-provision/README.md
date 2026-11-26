@@ -11,9 +11,35 @@ a Qingping account, the app or the cloud. It is cross-platform thanks to
 
 It uses the same protocol code as the integration (`custom_components/qingping_cgdn1/ble_provision.py`).
 
-## Install
+## Windows 11 app (GUI)
 
-### Windows 10/11
+The simplest way on Windows:
+
+| Option | How |
+|---|---|
+| **Ready-made app** | Download `QingpingProvision.exe` from the [releases](https://github.com/GruttePier013/mqtt_qingping_air_monitor/releases) (or the *Windows GUI* workflow artifact) and double-click it. No Python needed. |
+| **From the repo** | Double-click `start_gui.bat`. The first start creates a local Python environment and installs `bleak`, then the window opens. Needs Python 3.11+ from python.org. |
+| **Build it yourself** | `build_exe.bat` → `dist\QingpingProvision.exe` (PyInstaller). |
+
+The window has three steps:
+
+1. **Monitor:** put it in pairing mode, click **Scan**, and pick it from the list. The Wi-Fi MAC
+   (Bluetooth MAC − 2) is filled in automatically; *Read from device* asks the monitor itself.
+2. **Wi-Fi network:** SSID and password (2.4 GHz).
+3. **MQTT broker:** LAN IP, port, user and password for the monitor.
+
+**Check** validates and shows the configuration (passwords hidden). **Write to monitor** provisions
+it, with progress in the log. The language follows Windows (Dutch or English; `--lang en|nl` to force).
+
+Passwords are never saved. Network name, broker, port, user and prefix are remembered in
+`%APPDATA%\QingpingProvision\settings.json`. Windows SmartScreen may warn about the unsigned exe:
+*More info → Run anyway*.
+
+## Command line
+
+### Install
+
+#### Windows 10/11
 
 1. Install Python 3.11 or newer from <https://www.python.org/downloads/> (tick *Add python.exe to PATH*).
 2. Make sure Bluetooth is on (Settings → Bluetooth & devices).
@@ -26,7 +52,7 @@ py -m venv .venv
 pip install -r requirements.txt
 ```
 
-### macOS / Linux
+#### macOS / Linux
 
 ```bash
 cd tools/qingping-provision
@@ -36,7 +62,7 @@ pip install -r requirements.txt
 
 On macOS, allow Bluetooth access for your terminal app when asked. On Linux, BlueZ must be running.
 
-## Use
+### Use
 
 **1. Pairing mode:** hold the top bar of the monitor for about 8 seconds until the large Wi-Fi icon appears.
 
@@ -72,7 +98,7 @@ On macOS/Linux, use `\` instead of `^` to continue lines.
 **4. Check:** within about a minute the monitor publishes on `qingping/<WIFI_MAC>/up`, and Home Assistant
 offers it under *Discovered*.
 
-### Options
+#### Options
 
 | Option | Default | Meaning |
 |---|---|---|

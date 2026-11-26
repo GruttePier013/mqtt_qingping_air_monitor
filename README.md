@@ -154,8 +154,12 @@ logged. This is deliberately a config flow and **not an action**: action data is
 `call_service` event, which the recorder stores in the database, so a password in an action would
 end up in plain text in `home-assistant_v2.db` and in automation traces.
 
-**B2. From a PC (Windows, macOS, Linux):** [`tools/qingping-provision`](tools/qingping-provision/README.md)
-is a small cross-platform CLI (bleak, MIT) that uses the same protocol code:
+**B2. From a PC:** [`tools/qingping-provision`](tools/qingping-provision/README.md), which uses the
+same protocol code (bleak, MIT):
+
+- **Windows 11 app:** `QingpingProvision.exe` from the [releases](https://github.com/GruttePier013/mqtt_qingping_air_monitor/releases)
+  (no Python needed), or `start_gui.bat`. Scan, pick the monitor, enter Wi-Fi and broker, write.
+- **Command line** (Windows, macOS, Linux):
 
 ```text
 pip install -r tools/qingping-provision/requirements.txt

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.0
+### Added
+- **Windows 11 GUI** for Bluetooth provisioning (`tools/qingping-provision/qingping_provision_gui.py`): scan, pick the monitor, Wi-Fi + broker, check, write with progress. Dutch/English following Windows, high-DPI, passwords never saved.
+- `start_gui.bat` (first run sets up a venv), `build_exe.bat`, and a *Windows GUI* workflow that smoke-tests the window and the exe on `windows-latest` and attaches `QingpingProvision.exe` to tagged releases.
+### CI
+- actions/checkout v5, setup-python v6 (no Node 20 deprecation warning).
+
 ## 2.2.4
 - hassfest: `network` added to `after_dependencies`; no HTML-like `<MAC>` in translations.
 - LICENSE is plain MIT (detectable by GitHub/HACS); third-party notices moved to NOTICE.md.

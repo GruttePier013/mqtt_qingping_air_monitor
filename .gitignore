@@ -14,3 +14,6 @@ tools/qingping-ble-setup/.venv/
 # never commit local secrets or raw MQTT dumps (they contain SSID/BSSID)
 secrets.yaml
 *.mqtt.log
+tools/qingping-provision/.venv/
+tools/qingping-provision/ble_provision.py
+*.spec

@@ -163,7 +163,21 @@ Bij "nog geen bericht" kloppen meestal het wifi-wachtwoord, het IP of de ACL nie
 
 #### Variant 2: vanaf een pc met Windows, macOS of Linux
 
-Gebruik [`tools/qingping-provision`](../tools/qingping-provision/README.md).
+**Windows 11, met een venster (aanbevolen op een pc):**
+
+1. Download `QingpingProvision.exe` van de
+   [releases-pagina](https://github.com/GruttePier013/mqtt_qingping_air_monitor/releases) en dubbelklik
+   erop. Python is dan niet nodig. Waarschuwt SmartScreen, klik dan op *Meer informatie → Toch uitvoeren*.
+   Heb je Python, dan kun je ook dubbelklikken op `tools\qingping-provision\start_gui.bat`.
+2. Zet de monitor in koppelmodus en klik op **Zoeken**. Kies de monitor; het wifi-MAC wordt ingevuld.
+3. Vul het wifi-netwerk en de MQTT-broker in (LAN-IP, poort, gebruiker, wachtwoord).
+4. **Controleren** laat zien wat er geschreven wordt. **Naar monitor schrijven** stelt hem in.
+5. Na ongeveer een minuut staat hij in Home Assistant onder *Ontdekt*.
+
+De wachtwoorden worden nooit opgeslagen. De overige velden onthoudt het programma voor de volgende monitor.
+
+**Via de commandoregel** (Windows, macOS, Linux): gebruik
+[`tools/qingping-provision`](../tools/qingping-provision/README.md).
 
 1. **Windows:** installeer Python 3.11+ van python.org (vink *Add python.exe to PATH* aan) en zet Bluetooth aan.
 2. Installeren (PowerShell, in de repo-map):
