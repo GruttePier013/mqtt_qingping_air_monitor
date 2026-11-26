@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.4
+- hassfest: `network` added to `after_dependencies`; no HTML-like `<MAC>` in translations.
+- LICENSE is plain MIT (detectable by GitHub/HACS); third-party notices moved to NOTICE.md.
+- CI: tests run with the repository root on the Python path.
+
 ## 2.2.3
 - Integration icon back to the Air Monitor Lite product image (650 ppm display).
 - Repository owner and URLs set (GruttePier013/mqtt_qingping_air_monitor).

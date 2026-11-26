@@ -445,6 +445,7 @@ supported device; all rights to that image remain with Qingping.
 - Integration, tests, docs and examples: **MIT** (see [LICENSE](LICENSE)).
 - `tools/qingping-provision/` and `custom_components/qingping_cgdn1/ble_provision.py`: **MIT**, an independent
   implementation of the documented setup protocol.
+- Third-party notices (AGPL tool, product image): [NOTICE.md](NOTICE.md).
 - `tools/qingping-ble-setup/`: **AGPL-3.0-or-later**, © bitrate16. It is a separate program, shipped
   unmodified for convenience (see its [LICENSE](tools/qingping-ble-setup/LICENSE) and
   [UPSTREAM.md](tools/qingping-ble-setup/UPSTREAM.md)). The integration does not import it.

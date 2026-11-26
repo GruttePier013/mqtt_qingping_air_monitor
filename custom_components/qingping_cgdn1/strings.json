@@ -19,7 +19,7 @@
       },
       "manual": {
         "title": "Qingping Air Monitor Lite",
-        "description": "No Qingping heard on MQTT within 10 s. Enter the MAC address manually (as used in qingping/<MAC>/up).",
+        "description": "No Qingping heard on MQTT within 10 s. Enter the MAC address manually (as used in qingping/MAC/up).",
         "data": {
           "mac": "MAC address",
           "name": "Name"

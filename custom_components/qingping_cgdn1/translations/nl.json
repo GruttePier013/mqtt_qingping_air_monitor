@@ -19,7 +19,7 @@
       },
       "manual": {
         "title": "Qingping Air Monitor Lite",
-        "description": "Binnen 10 s geen Qingping op MQTT gehoord. Vul het MAC-adres handmatig in (zoals in qingping/<MAC>/up).",
+        "description": "Binnen 10 s geen Qingping op MQTT gehoord. Vul het MAC-adres handmatig in (zoals in qingping/MAC/up).",
         "data": {
           "mac": "MAC-adres",
           "name": "Naam"

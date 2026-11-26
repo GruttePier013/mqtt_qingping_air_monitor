@@ -2,7 +2,8 @@
   "domain": "qingping_cgdn1",
   "name": "QingPing CGDN1",
   "after_dependencies": [
-    "bluetooth"
+    "bluetooth",
+    "network"
   ],
   "bluetooth": [
     {
@@ -25,5 +26,5 @@
     "qingping/+/up"
   ],
   "requirements": [],
-  "version": "2.2.3"
+  "version": "2.2.4"
 }
