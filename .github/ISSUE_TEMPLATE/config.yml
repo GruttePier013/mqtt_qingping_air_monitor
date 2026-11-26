@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Dutch guide / Nederlandse handleiding
+    url: https://github.com/GruttePier013/mqtt_qingping_air_monitor/blob/main/docs/HANDLEIDING.md
+    about: Stap-voor-stap installatie en probleemoplossing

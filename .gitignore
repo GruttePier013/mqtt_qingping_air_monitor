@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+.idea/
+.vscode/
+*.egg-info/
+build/
+dist/
+tools/qingping-ble-setup/.venv/
+# never commit local secrets or raw MQTT dumps (they contain SSID/BSSID)
+secrets.yaml
+*.mqtt.log

@@ -1,0 +1,38 @@
+name: Bug report
+description: Something does not work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please attach the **diagnostics** download (Settings → Devices → your monitor → ⋮ → Download diagnostics).
+        Do **not** paste raw MQTT type-13 messages: they contain your Wi-Fi name (SSID) and router MAC (BSSID).
+  - type: input
+    id: ha_version
+    attributes: {label: Home Assistant version, placeholder: "2026.11.3"}
+    validations: {required: true}
+  - type: input
+    id: integration_version
+    attributes: {label: Integration version, placeholder: "2.0.2"}
+    validations: {required: true}
+  - type: input
+    id: firmware
+    attributes: {label: Device firmware, placeholder: "4.8.5"}
+  - type: dropdown
+    id: provisioning
+    attributes:
+      label: How was MQTT set up?
+      options: [Developer portal, Qingping support, Offline BLE tool, Other]
+  - type: textarea
+    id: what
+    attributes: {label: What happened and what did you expect?}
+    validations: {required: true}
+  - type: textarea
+    id: logs
+    attributes:
+      label: Debug log
+      description: "logger: logs: custom_components.qingping_cgdn1: debug"
+      render: text
+  - type: textarea
+    id: diagnostics
+    attributes: {label: Diagnostics (attach file or paste)}
