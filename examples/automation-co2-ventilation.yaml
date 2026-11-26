@@ -1,0 +1,21 @@
+# Example: notify and boost ventilation when CO2 stays high.
+alias: CO2 high - living room
+mode: single
+triggers:
+  - trigger: numeric_state
+    entity_id: sensor.woonkamer_carbon_dioxide
+    above: 1000
+    for: "00:05:00"
+conditions:
+  - condition: state
+    entity_id: sensor.woonkamer_status
+    state: online
+actions:
+  - action: notify.notify
+    data:
+      title: Ventilate
+      message: >-
+        CO2 in the living room is {{ states('sensor.woonkamer_carbon_dioxide') }} ppm.
+  # - action: fan.set_percentage
+  #   target: {entity_id: fan.ventilation}
+  #   data: {percentage: 70}

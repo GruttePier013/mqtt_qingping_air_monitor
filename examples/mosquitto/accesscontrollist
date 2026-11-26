@@ -1,0 +1,12 @@
+# Home Assistant (the user of the MQTT integration)
+user homeassistant
+topic readwrite #
+
+# Qingping CGDN1 monitors: publish own data, receive commands, nothing else
+user qingping
+topic write qingping/+/up
+topic read  qingping/+/down
+
+# Other clients (Zigbee2MQTT, ESPHome, ...): give them their own topics,
+# but NO write access to qingping/# and preferably no read access either
+# (type-13 messages contain SSID and BSSID).

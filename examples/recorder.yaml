@@ -1,0 +1,24 @@
+# Keep the database small: record only temperature, humidity and CO2 of the monitors.
+# Adjust the device names (here: woonkamer, slaapkamer) to yours.
+recorder:
+  include:
+    entities:
+      - sensor.woonkamer_temperature
+      - sensor.woonkamer_humidity
+      - sensor.woonkamer_carbon_dioxide
+      - sensor.slaapkamer_temperature
+      - sensor.slaapkamer_humidity
+      - sensor.slaapkamer_carbon_dioxide
+  exclude:
+    entity_globs:
+      - sensor.*_last_seen
+      - sensor.*_extra_data
+      - sensor.*_report_type
+      - sensor.*_wifi_signal
+
+# Note: logbook.exclude does not apply on device pages. The "Last seen" sensor is
+# disabled by default for that reason; Status.last_reported holds the last message time.
+logbook:
+  exclude:
+    entity_globs:
+      - sensor.*_last_seen

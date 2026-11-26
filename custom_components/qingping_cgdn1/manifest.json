@@ -1,0 +1,29 @@
+{
+  "domain": "qingping_cgdn1",
+  "name": "QingPing CGDN1",
+  "after_dependencies": [
+    "bluetooth"
+  ],
+  "bluetooth": [
+    {
+      "connectable": true,
+      "local_name": "Qingping Air Monitor Lite*"
+    }
+  ],
+  "codeowners": [
+    "@GruttePier013"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "mqtt"
+  ],
+  "documentation": "https://github.com/GruttePier013/mqtt_qingping_air_monitor",
+  "integration_type": "device",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/GruttePier013/mqtt_qingping_air_monitor/issues",
+  "mqtt": [
+    "qingping/+/up"
+  ],
+  "requirements": [],
+  "version": "2.2.3"
+}

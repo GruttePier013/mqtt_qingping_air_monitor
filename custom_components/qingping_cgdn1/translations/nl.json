@@ -1,0 +1,234 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "confirm": {
+        "title": "Qingping Air Monitor Lite gevonden",
+        "description": "Een Qingping (MAC {mac}) publiceert op je MQTT-broker. Toevoegen?",
+        "data": {
+          "name": "Naam"
+        }
+      },
+      "user": {
+        "title": "Qingping Air Monitor Lite",
+        "description": "Kies een Qingping die op MQTT is gevonden.",
+        "data": {
+          "mac": "Apparaat",
+          "name": "Naam"
+        }
+      },
+      "manual": {
+        "title": "Qingping Air Monitor Lite",
+        "description": "Binnen 10 s geen Qingping op MQTT gehoord. Vul het MAC-adres handmatig in (zoals in qingping/<MAC>/up).",
+        "data": {
+          "mac": "MAC-adres",
+          "name": "Naam"
+        }
+      },
+      "bt_setup": {
+        "title": "Instellen via Bluetooth",
+        "description": "Er is via Bluetooth een Qingping Air Monitor Lite in koppelmodus gevonden ({ble_address}, wifi-MAC {mac}).\n\nVul het wifi-netwerk in waarmee hij moet verbinden en je MQTT-broker. Gebruik het **LAN-IP-adres** van de broker en een aparte MQTT-gebruiker voor de monitors. De gegevens gaan alleen via Bluetooth naar het apparaat: er komt geen Qingping-account of cloud aan te pas, en de wachtwoorden worden niet in Home Assistant opgeslagen.\n\nZorg dat de monitor nog het grote wifi-icoon toont (houd anders de balk bovenop ~8 s ingedrukt).",
+        "data": {
+          "name": "Naam",
+          "wifi_ssid": "Wifi-netwerk (SSID, 2,4 GHz)",
+          "wifi_password": "Wifi-wachtwoord",
+          "mqtt_host": "MQTT-broker (LAN-IP)",
+          "mqtt_port": "MQTT-poort",
+          "mqtt_username": "MQTT-gebruikersnaam voor de monitor",
+          "mqtt_password": "MQTT-wachtwoord voor de monitor"
+        }
+      },
+      "bt_timeout": {
+        "title": "Nog geen bericht van de monitor",
+        "description": "De instellingen zijn geschreven, maar binnen {seconds} seconden kwam er niets binnen op `{topic}`.\n\nControleer: wifi-naam en -wachtwoord (2,4 GHz), of de broker-IP bereikbaar is vanaf het netwerk van de monitor, MQTT-gebruiker/wachtwoord en ACL (schrijven `qingping/+/up`, lezen `qingping/+/down`), en het Mosquitto-log.\n\nVerstuur om het apparaat toch toe te voegen (hij komt vanzelf online zodra hij verbindt), of sluit dit venster, zet de monitor opnieuw in koppelmodus en probeer het nog eens."
+      }
+    },
+    "error": {
+      "invalid_mac": "Vul 12 hexadecimale tekens in, bijv. 7CC29400BEEF.",
+      "ble_failed": "Instellen via Bluetooth mislukt: {error}",
+      "invalid_provisioning": "Ongeldige invoer: {error}"
+    },
+    "abort": {
+      "already_configured": "Deze Qingping is al ingesteld.",
+      "already_in_progress": "Deze Qingping wordt al ingesteld.",
+      "invalid_discovery_info": "Ongeldig MQTT-discoverytopic."
+    },
+    "progress": {
+      "writing": "Wifi- en MQTT-instellingen via Bluetooth naar de monitor schrijven…",
+      "waiting": "Wachten tot de monitor met wifi verbindt en publiceert op {topic} (max. 2 minuten)…"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "temperature": {
+        "name": "Temperatuur"
+      },
+      "temperature_unfiltered": {
+        "name": "Temperatuur ongefilterd"
+      },
+      "humidity": {
+        "name": "Luchtvochtigheid"
+      },
+      "co2": {
+        "name": "CO2"
+      },
+      "pm25": {
+        "name": "PM25"
+      },
+      "pm10": {
+        "name": "PM10"
+      },
+      "battery": {
+        "name": "Batterij"
+      },
+      "status": {
+        "name": "Status",
+        "state": {
+          "online": "Online",
+          "offline": "Offline"
+        }
+      },
+      "battery_state": {
+        "name": "Batterijstatus",
+        "state": {
+          "discharging": "Ontladen",
+          "charging": "Laden",
+          "full": "Volledig geladen"
+        }
+      },
+      "firmware": {
+        "name": "Firmware"
+      },
+      "mac_address": {
+        "name": "MAC-adres"
+      },
+      "report_type": {
+        "name": "Rapporttype"
+      },
+      "last_seen": {
+        "name": "Laatst gezien"
+      },
+      "wifi_signal": {
+        "name": "WiFi-signaal"
+      },
+      "sensor_status": {
+        "name": "Sensorstatus"
+      },
+      "co2_calibration_state": {
+        "name": "CO2-kalibratiestatus"
+      },
+      "extra_data": {
+        "name": "Extra data"
+      }
+    },
+    "number": {
+      "temperature_offset": {
+        "name": "Temperatuur-offset"
+      },
+      "temperature_zoom": {
+        "name": "Temperatuur-offset %"
+      },
+      "humidity_offset": {
+        "name": "Luchtvochtigheid-offset"
+      },
+      "co2_offset": {
+        "name": "CO2-offset"
+      },
+      "co2_zoom": {
+        "name": "CO2-offset %"
+      },
+      "pm25_offset": {
+        "name": "PM2.5-offset"
+      },
+      "pm10_offset": {
+        "name": "PM10-offset"
+      },
+      "power_off_time": {
+        "name": "Automatisch uitschakelen"
+      },
+      "display_off_time": {
+        "name": "Scherm uit na"
+      },
+      "auto_slideing_time": {
+        "name": "Schermbeveiliging na"
+      },
+      "timezone": {
+        "name": "Tijdzone"
+      },
+      "pm_sampling_interval": {
+        "name": "PM-meetinterval"
+      },
+      "co2_sampling_interval": {
+        "name": "CO2-meetinterval"
+      },
+      "update_interval": {
+        "name": "Verversingsinterval"
+      },
+      "temperature_step_correction": {
+        "name": "Temperatuur-sprongcorrectie"
+      }
+    },
+    "select": {
+      "screensaver_type": {
+        "name": "Schermweergave",
+        "state": {
+          "rotating": "Wisselende waarden",
+          "current": "Huidige waarde",
+          "time_rotating": "Tijd + wisselende waarden",
+          "time_current": "Tijd + huidige waarde"
+        }
+      },
+      "temperature_unit": {
+        "name": "Temperatuureenheid scherm",
+        "state": {
+          "celsius": "Celsius (°C)",
+          "fahrenheit": "Fahrenheit (°F)"
+        }
+      },
+      "is_12_hour_mode": {
+        "name": "Klokweergave",
+        "state": {
+          "24h": "24-uurs",
+          "12h": "12-uurs"
+        }
+      }
+    },
+    "switch": {
+      "co2_asc": {
+        "name": "CO2 automatische kalibratie"
+      }
+    },
+    "time": {
+      "night_mode_start_time": {
+        "name": "Nachtmodus start"
+      },
+      "night_mode_end_time": {
+        "name": "Nachtmodus einde"
+      }
+    }
+  },
+  "issues": {
+    "temp_step": {
+      "title": "{name}: temperatuursprong gecorrigeerd",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "{name}: temperatuursprong gecorrigeerd",
+            "description": "Op {time} sprong de temperatuur {delta} °C tussen twee metingen (fysiek niet mogelijk). De integratie heeft de sprong opgevangen; de sprongcorrectie is nu {correction} °C.\n\nVerstuur om te bevestigen. Vink het vakje aan om de correctie op 0 te zetten (als het niveau ná de sprong het juiste is).",
+            "data": {
+              "reset": "Correctie op 0 zetten"
+            }
+          }
+        }
+      }
+    },
+    "offline": {
+      "title": "{name} is offline",
+      "description": "Al meer dan {minutes} minuten geen MQTT-bericht van {name} ({mac}). Controleer stroom/USB en WiFi. Deze melding verdwijnt vanzelf zodra het apparaat weer rapporteert."
+    },
+    "sensor_fault": {
+      "title": "{name}: sensorfout",
+      "description": "Het apparaat meldt een status ongelijk aan 0 voor: {sensors}. Deze melding verdwijnt vanzelf zodra alle sensoren weer OK zijn."
+    }
+  }
+}

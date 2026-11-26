@@ -1,0 +1,234 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "confirm": {
+        "title": "Qingping Air Monitor Lite discovered",
+        "description": "A Qingping (MAC {mac}) publishes on your MQTT broker. Add it?",
+        "data": {
+          "name": "Name"
+        }
+      },
+      "user": {
+        "title": "Qingping Air Monitor Lite",
+        "description": "Pick a Qingping found on MQTT.",
+        "data": {
+          "mac": "Device",
+          "name": "Name"
+        }
+      },
+      "manual": {
+        "title": "Qingping Air Monitor Lite",
+        "description": "No Qingping heard on MQTT within 10 s. Enter the MAC address manually (as used in qingping/<MAC>/up).",
+        "data": {
+          "mac": "MAC address",
+          "name": "Name"
+        }
+      },
+      "bt_setup": {
+        "title": "Set up over Bluetooth",
+        "description": "A Qingping Air Monitor Lite in pairing mode was found over Bluetooth ({ble_address}, Wi-Fi MAC {mac}).\n\nEnter the Wi-Fi network it should join and your MQTT broker. Use the broker's **LAN IP address** and a dedicated MQTT user for the monitors. The details are written to the device over Bluetooth only: no Qingping account or cloud is involved, and the passwords are not stored in Home Assistant.\n\nMake sure the monitor still shows the large Wi-Fi icon (hold the top bar ~8 s if not).",
+        "data": {
+          "name": "Name",
+          "wifi_ssid": "Wi-Fi network (SSID, 2.4 GHz)",
+          "wifi_password": "Wi-Fi password",
+          "mqtt_host": "MQTT broker (LAN IP)",
+          "mqtt_port": "MQTT port",
+          "mqtt_username": "MQTT username for the monitor",
+          "mqtt_password": "MQTT password for the monitor"
+        }
+      },
+      "bt_timeout": {
+        "title": "No message from the monitor yet",
+        "description": "The settings were written, but nothing arrived on `{topic}` within {seconds} seconds.\n\nCheck: Wi-Fi name/password (2.4 GHz), broker IP reachable from the monitor's network, MQTT user/password and ACL (write `qingping/+/up`, read `qingping/+/down`), and the Mosquitto log.\n\nSubmit to add the device anyway (it comes online by itself once it connects), or close this dialog, put the monitor in pairing mode again and retry."
+      }
+    },
+    "error": {
+      "invalid_mac": "Enter 12 hexadecimal characters, e.g. 7CC29400BEEF.",
+      "ble_failed": "Bluetooth provisioning failed: {error}",
+      "invalid_provisioning": "Invalid input: {error}"
+    },
+    "abort": {
+      "already_configured": "This Qingping is already configured.",
+      "already_in_progress": "Setup for this Qingping is already in progress.",
+      "invalid_discovery_info": "Invalid MQTT discovery topic."
+    },
+    "progress": {
+      "writing": "Writing Wi-Fi and MQTT settings to the monitor over Bluetooth…",
+      "waiting": "Waiting for the monitor to join Wi-Fi and publish on {topic} (up to 2 minutes)…"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "temperature": {
+        "name": "Temperature"
+      },
+      "temperature_unfiltered": {
+        "name": "Temperature unfiltered"
+      },
+      "humidity": {
+        "name": "Humidity"
+      },
+      "co2": {
+        "name": "CO2"
+      },
+      "pm25": {
+        "name": "PM25"
+      },
+      "pm10": {
+        "name": "PM10"
+      },
+      "battery": {
+        "name": "Battery"
+      },
+      "status": {
+        "name": "Status",
+        "state": {
+          "online": "Online",
+          "offline": "Offline"
+        }
+      },
+      "battery_state": {
+        "name": "Battery state",
+        "state": {
+          "discharging": "Discharging",
+          "charging": "Charging",
+          "full": "Fully charged"
+        }
+      },
+      "firmware": {
+        "name": "Firmware"
+      },
+      "mac_address": {
+        "name": "MAC address"
+      },
+      "report_type": {
+        "name": "Report type"
+      },
+      "last_seen": {
+        "name": "Last seen"
+      },
+      "wifi_signal": {
+        "name": "WiFi signal"
+      },
+      "sensor_status": {
+        "name": "Sensor status"
+      },
+      "co2_calibration_state": {
+        "name": "CO2 calibration state"
+      },
+      "extra_data": {
+        "name": "Extra data"
+      }
+    },
+    "number": {
+      "temperature_offset": {
+        "name": "Temperature offset"
+      },
+      "temperature_zoom": {
+        "name": "Temperature offset %"
+      },
+      "humidity_offset": {
+        "name": "Humidity offset"
+      },
+      "co2_offset": {
+        "name": "CO2 offset"
+      },
+      "co2_zoom": {
+        "name": "CO2 offset %"
+      },
+      "pm25_offset": {
+        "name": "PM2.5 offset"
+      },
+      "pm10_offset": {
+        "name": "PM10 offset"
+      },
+      "power_off_time": {
+        "name": "Auto power-off"
+      },
+      "display_off_time": {
+        "name": "Screen off after"
+      },
+      "auto_slideing_time": {
+        "name": "Screensaver delay"
+      },
+      "timezone": {
+        "name": "Timezone"
+      },
+      "pm_sampling_interval": {
+        "name": "PM sampling interval"
+      },
+      "co2_sampling_interval": {
+        "name": "CO2 sampling interval"
+      },
+      "update_interval": {
+        "name": "Update interval"
+      },
+      "temperature_step_correction": {
+        "name": "Temperature step correction"
+      }
+    },
+    "select": {
+      "screensaver_type": {
+        "name": "Screen mode",
+        "state": {
+          "rotating": "Rotating readings",
+          "current": "Current reading",
+          "time_rotating": "Time + rotating readings",
+          "time_current": "Time + current reading"
+        }
+      },
+      "temperature_unit": {
+        "name": "Display temperature unit",
+        "state": {
+          "celsius": "Celsius (°C)",
+          "fahrenheit": "Fahrenheit (°F)"
+        }
+      },
+      "is_12_hour_mode": {
+        "name": "Clock format",
+        "state": {
+          "24h": "24-hour",
+          "12h": "12-hour"
+        }
+      }
+    },
+    "switch": {
+      "co2_asc": {
+        "name": "CO2 automatic calibration"
+      }
+    },
+    "time": {
+      "night_mode_start_time": {
+        "name": "Night mode start"
+      },
+      "night_mode_end_time": {
+        "name": "Night mode end"
+      }
+    }
+  },
+  "issues": {
+    "temp_step": {
+      "title": "{name}: temperature step corrected",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "{name}: temperature step corrected",
+            "description": "On {time} the temperature jumped {delta} °C between two readings (not physically possible). The integration absorbed the jump; current step correction is {correction} °C.\n\nSubmit to acknowledge. Tick the box to reset the correction to 0 (if the level after the jump is the correct one).",
+            "data": {
+              "reset": "Reset correction to 0"
+            }
+          }
+        }
+      }
+    },
+    "offline": {
+      "title": "{name} is offline",
+      "description": "No MQTT message from {name} ({mac}) for more than {minutes} minutes. Check power/USB and WiFi. This message disappears automatically when the device reports again."
+    },
+    "sensor_fault": {
+      "title": "{name}: sensor fault",
+      "description": "The device reports a non-zero status for: {sensors}. This message disappears automatically when all sensors report OK."
+    }
+  }
+}
