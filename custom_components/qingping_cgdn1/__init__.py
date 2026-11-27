@@ -34,6 +34,10 @@ ENTITY_ID_MIGRATIONS: dict[str, tuple[str, str]] = {
 }
 
 
+# sensors folded into Status (unique-id suffixes)
+REMOVED_SENSORS = ("last_seen", "report_type")
+
+
 @callback
 def _async_migrate_entity_ids(hass: HomeAssistant, mac: str) -> None:
     """Rename confusing entity ids (history is kept by HA)."""
@@ -71,6 +75,9 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     the logbook exclude config does not apply on the device page). Users can
     re-enable it; "Status" now carries the time of the last message in
     ``last_reported``.
+
+    1.2 -> 1.3: remove "Last seen" and "Report type"; their data are now
+    attributes of "Status" (realtime / online / offline).
     """
     if entry.version > 1:
         return False
@@ -85,6 +92,16 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 _LOGGER.info("Disabled %s (logbook noise); use the Status sensor's "
                              "last_reported instead", entity_id)
         hass.config_entries.async_update_entry(entry, minor_version=2)
+    if entry.minor_version < 3:
+        # 1.2 -> 1.3: "Last seen" and "Report type" are now attributes of
+        # Status (realtime / online / offline): remove the separate entities.
+        mac = normalize_mac(entry.data.get("mac", ""))
+        registry = er.async_get(hass)
+        for suffix in REMOVED_SENSORS:
+            if entity_id := registry.async_get_entity_id("sensor", DOMAIN, f"{mac}_{suffix}"):
+                registry.async_remove(entity_id)
+                _LOGGER.info("Removed %s: now an attribute of the Status sensor", entity_id)
+        hass.config_entries.async_update_entry(entry, minor_version=3)
     return True
 
 

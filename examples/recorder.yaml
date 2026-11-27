@@ -11,14 +11,9 @@ recorder:
       - sensor.slaapkamer_carbon_dioxide
   exclude:
     entity_globs:
-      - sensor.*_last_seen
       - sensor.*_extra_data
-      - sensor.*_report_type
       - sensor.*_wifi_signal
 
-# Note: logbook.exclude does not apply on device pages. The "Last seen" sensor is
-# disabled by default for that reason; Status.last_reported holds the last message time.
-logbook:
-  exclude:
-    entity_globs:
-      - sensor.*_last_seen
+# Note: logbook.exclude does not apply on device pages. There is no "Last seen"
+# sensor; Status only changes on a real transition and its last_reported holds
+# the time of the last message.

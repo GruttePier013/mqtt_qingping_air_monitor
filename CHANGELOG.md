@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.4.0
+### Integration
+- **Status** is now a connectivity sensor with three states: `realtime` (type-12 realtime reports arrive), `online` (messages arrive, but no realtime reports — history/info only) and `offline` (nothing for 5 min). Realtime counts as lost after max(60 s, 4 × update interval) without a type-12 report.
+- Status attributes: `last_report` (time of the last message, ISO), `report_type` (`realtime` / `history` / `device_info` / `settings` / `handshake`), `report_type_code` (`12`, `17`, …), `expected_every_s` (update interval in realtime/offline, device report interval when only online) and `device_timestamp`.
+- The separate **Last seen** and **Report type** sensors are removed (config entry 1.2 → 1.3 removes them from the entity registry). Status keeps its entity ID and history.
+- No logbook noise: the state only changes on a real transition; `last_report` alone is rewritten at most once a minute (one recorder row per minute), while `last_reported` still follows every message. `last_report` and `device_timestamp` are not recorded.
+- **Breaking:** `online` used to mean "any message"; it now means "messages, but not realtime". Automations that test `state == 'online'` should test `state != 'offline'`.
+
 ## 2.3.1
 ### Windows GUI
 - Bluetooth state next to *Scan* (on / off / disabled / no adapter / no Bluetooth LE), checked before every action.

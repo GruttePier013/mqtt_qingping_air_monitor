@@ -44,6 +44,11 @@ from .const import (
     OFFLINE_TIMEOUT,
     REALTIME_DURATION,
     REALTIME_REARM,
+    REALTIME_STALE_MIN,
+    REPORT_TYPES,
+    STATUS_OFFLINE,
+    STATUS_ONLINE,
+    STATUS_REALTIME,
     TEMP_LOWPASS_TIME_CONSTANT,
     TEMP_OUTLIER_RADIUS,
     TEMP_OUTLIER_WINDOW,
@@ -52,7 +57,7 @@ from .const import (
     TEMP_STEP_THRESHOLD,
     WATCHDOG_INTERVAL,
 )
-from .device import QingpingDeviceSettings
+from .device import HISTORY_INTERVAL, QingpingDeviceSettings
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -100,6 +105,7 @@ class QingpingClient:
         self._last_realtime = 0.0
         self._last_applied_ts = 0
         self._online = False
+        self._status = STATUS_OFFLINE
         self._offline_issue = False
 
         # temperature filter state
@@ -147,6 +153,50 @@ class QingpingClient:
     @property
     def online(self) -> bool:
         return self._online
+
+    @property
+    def realtime_stale_after(self) -> int:
+        """Seconds without a type-12 report after which realtime counts as lost."""
+        return max(REALTIME_STALE_MIN, 4 * self.update_interval)
+
+    def _compute_status(self, now: float | None = None) -> str:
+        now = time.time() if now is None else now
+        if not self._online:
+            return STATUS_OFFLINE
+        if self._last_realtime and now - self._last_realtime <= self.realtime_stale_after:
+            return STATUS_REALTIME
+        return STATUS_ONLINE
+
+    @property
+    def status(self) -> str:
+        """realtime / online / offline (see const.STATUS_*)."""
+        return self._status
+
+    @property
+    def report_type_name(self) -> str | None:
+        if self.last_report_type is None:
+            return None
+        return REPORT_TYPES.get(self.last_report_type, f"type_{self.last_report_type}")
+
+    @property
+    def expected_every_s(self) -> int:
+        """Interval at which the next message is expected in the current mode."""
+        if self._status == STATUS_ONLINE:
+            try:
+                return int(self.settings.raw.get("report_interval") or HISTORY_INTERVAL)
+            except (TypeError, ValueError):
+                return HISTORY_INTERVAL
+        return self.update_interval
+
+    @callback
+    def _update_status(self) -> bool:
+        """Recompute the status; True when it changed."""
+        status = self._compute_status()
+        if status == self._status:
+            return False
+        _LOGGER.debug("%s status %s -> %s", self.mac, self._status, status)
+        self._status = status
+        return True
 
     # ------------------------------------------------------------- listeners
     @callback
@@ -213,8 +263,9 @@ class QingpingClient:
     async def _watchdog(self, _now=None) -> None:
         now = time.time()
         online = bool(self._last_rx) and now - self._last_rx <= OFFLINE_TIMEOUT
-        if online != self._online:
-            self._online = online
+        changed = online != self._online
+        self._online = online
+        if self._update_status() or changed:
             self._notify()
         if not online:
             # offline/never seen: raise issue once, keep nudging the device
@@ -242,9 +293,11 @@ class QingpingClient:
                 repairs.clear(self.hass, "offline", self.mac)
             # came back: make sure realtime + settings are (re)established
             self.hass.async_create_task(self.async_publish_realtime())
+        self._update_status()
 
     @callback
     def _seen(self, msg_type: str, payload: dict) -> None:
+        self._update_status()
         self.last_seen = dt_util.utcnow()
         self.last_report_type = msg_type
         ts = payload.get("timestamp")
@@ -452,6 +505,8 @@ class QingpingClient:
         return {
             "mac": self.mac,
             "online": self._online,
+            "status": self._status,
+            "last_report_type": self.last_report_type,
             "last_rx_age_s": round(time.time() - self._last_rx, 1) if self._last_rx else None,
             "last_realtime_age_s": round(time.time() - self._last_realtime, 1)
             if self._last_realtime else None,

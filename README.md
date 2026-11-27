@@ -242,11 +242,9 @@ Entity IDs are `<domain>.<device_name>_<key>`. Names are translated (English/Dut
 
 | Entity | Description |
 |---|---|
-| Status | `online` / `offline` (offline after 5 min without any message). Its `last_reported` is the time of the last message |
+| Status | `realtime` (realtime reports arrive) / `online` (messages, but no realtime) / `offline` (5 min without any message). Attributes: `last_report`, `report_type`, `report_type_code`, `expected_every_s`, `device_timestamp`. Its `last_reported` is the exact time of the last message |
 | Battery state | `discharging` / `charging` / `full` |
 | Firmware, MAC address | Also written to the device registry |
-| Report type | Which message type produced the last reading (hourly) |
-| Last seen | Timestamp of the last message. **Disabled by default** (see [Recorder and logbook](#recorder-and-logbook)) |
 | WiFi signal | RSSI in dBm (SSID/BSSID deliberately **not** exposed) |
 | Sensor status | `OK` or `Fault: co2, pm25 …` from the per-sensor status flags |
 | CO2 calibration state | As reported by the device |
@@ -317,16 +315,16 @@ All issues of a device are removed when its config entry is deleted.
 
 ## Recorder and logbook
 
-- Diagnostic sensors that change rarely (battery, report type) are throttled to hourly, and
+- Diagnostic sensors that change rarely (battery) are throttled to hourly, and
   *Extra data* to 5 minutes.
 - Bulky attributes (Wi-Fi details, sensor flags, extra fields) are marked **unrecorded**.
-- **Last seen without logbook noise.** A timestamp that changes on every message becomes a logbook
-  entry on every message, and `logbook: exclude` does **not** help on the device page (Home Assistant
-  doesn't apply logbook filters when the logbook is requested for a single device). So:
-  - the **Status** sensor is re-reported on every message with an unchanged state. Home Assistant then
-    only updates its `last_reported` time: no event, no logbook entry, no new database row;
-  - the **Last seen** sensor is **disabled by default** (like Z-Wave JS's "Last seen"). Upgrades from
-    2.1 or older disable it once. You can re-enable it if you accept one logbook entry per message.
+- **Last message without logbook noise.** There is no separate "Last seen" sensor (a timestamp that
+  changes on every message is a logbook entry per message, and `logbook: exclude` does **not** apply on
+  the device page). Instead the **Status** sensor:
+  - only changes state on a real transition (`realtime` / `online` / `offline`);
+  - rewrites its `last_report` attribute at most once a minute (not recorded);
+  - is re-reported on every message, so Home Assistant updates `last_reported`: no event, no logbook
+    entry, no new database row.
 
   Show the last message time in a dashboard with a Markdown card:
 
@@ -367,7 +365,7 @@ the code on the device.
 |---|---|
 | Nothing under *Discovered* | Listen to `qingping/#` in the MQTT settings. No messages means the broker address, user or ACL is wrong, or the device has no Wi-Fi. |
 | Messages arrive but entities stay *unavailable* | The device waits for the type-11 answer. Check that the HA MQTT user may **write** `qingping/+/down`. |
-| Updates only every 15 min | The realtime request is not arriving: same ACL check. Look at *Report type* and the debug log. |
+| Updates only every 15 min | The realtime request is not arriving: same ACL check. Look at the *Status* (`online` instead of `realtime`, attribute `report_type`) and the debug log. |
 | Settings don't stick | Open diagnostics: `settings.raw` shows what the device reported last. Some keys (`display_off_time`) are ignored by the firmware. |
 | Wrong clock | The timezone is managed automatically. Make sure the HA timezone is right. |
 | Offline repair after a restart | Normal until the first message. It clears itself. |

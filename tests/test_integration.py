@@ -70,7 +70,7 @@ async def test_realtime_values_and_names(hass, mqtt_mock, setup):
     assert t.attributes["friendly_name"] == "beeF Temperature"
     assert hass.states.get("sensor.beef_humidity").state == "53.58"
     assert hass.states.get("sensor.beef_battery_state").state == "full"
-    assert hass.states.get("sensor.beef_status").state == "online"
+    assert hass.states.get("sensor.beef_status").state == "realtime"
     assert hass.states.get("sensor.beef_sensor_status").state == "OK"
     assert hass.states.get("sensor.beef_extra_data").state == "0"
     assert hass.states.get("sensor.beef_firmware").state == "4.8.5"
