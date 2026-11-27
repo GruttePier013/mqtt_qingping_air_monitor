@@ -40,7 +40,7 @@ jobs:
         run: |
           Copy-Item ..\..\custom_components\qingping_cgdn1\ble_provision.py .
           pyinstaller --noconfirm --onefile --windowed --name QingpingProvision `
-            --icon app.ico --add-data "app.ico;." --add-data "ble_provision.py;." `
+            --icon app.ico --add-data "app.ico;." --add-data "logo.png;." --add-data "ble_provision.py;." `
             --hidden-import qingping_provision --collect-all bleak --collect-submodules winrt `
             qingping_provision_gui.py
       - name: Smoke test (exe)

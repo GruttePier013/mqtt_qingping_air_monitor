@@ -25,6 +25,23 @@ REALTIME_REARM = REALTIME_DURATION - 300
 WATCHDOG_INTERVAL = 60          # s
 OFFLINE_TIMEOUT = 300           # s without any message -> offline + repair issue
 HISTORY_MAX_AGE = 120           # s; older type-17 entries are acked but ignored
+REALTIME_STALE_MIN = 60         # s; "realtime" ends after max(this, 4 x update interval) without type 12
+STATUS_ATTR_REFRESH = 60        # s; how often the Status attributes (last_report) are rewritten
+
+# Connectivity states of the Status sensor
+STATUS_REALTIME = "realtime"    # type-12 realtime reports arrive
+STATUS_ONLINE = "online"        # messages arrive, but no realtime reports (history / info only)
+STATUS_OFFLINE = "offline"      # nothing for OFFLINE_TIMEOUT
+STATUS_OPTIONS = [STATUS_REALTIME, STATUS_ONLINE, STATUS_OFFLINE]
+
+# Message type -> name in the Status attribute "report_type"
+REPORT_TYPES = {
+    "10": "handshake",
+    "12": "realtime",
+    "13": "device_info",
+    "17": "history",
+    "28": "settings",
+}
 
 # Temperature filtering (applied to the main temperature entity)
 TEMP_STEP_THRESHOLD = 1.0       # °C between consecutive samples = artefact

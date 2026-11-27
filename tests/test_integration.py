@@ -70,7 +70,7 @@ async def test_realtime_values_and_names(hass, mqtt_mock, setup):
     assert t.attributes["friendly_name"] == "beeF Temperature"
     assert hass.states.get("sensor.beef_humidity").state == "53.58"
     assert hass.states.get("sensor.beef_battery_state").state == "full"
-    assert hass.states.get("sensor.beef_status").state == "online"
+    assert hass.states.get("sensor.beef_status").state == "realtime"
     assert hass.states.get("sensor.beef_sensor_status").state == "OK"
     assert hass.states.get("sensor.beef_extra_data").state == "0"
     assert hass.states.get("sensor.beef_firmware").state == "4.8.5"
@@ -164,6 +164,24 @@ async def test_offline_issue(hass, mqtt_mock, setup):
     async_fire_mqtt_message(hass, UP, rt(now + 10_000))
     await hass.async_block_till_done()
     assert ir.async_get(hass).async_get_issue(DOMAIN, f"offline_{MAC}") is None
+
+
+async def test_issue_uses_ha_device_name(hass, mqtt_mock, setup):
+    from homeassistant.helpers import device_registry as dr
+
+    registry = dr.async_get(hass)
+    device = registry.async_get_device(identifiers={(DOMAIN, MAC)})
+    registry.async_update_device(device.id, name_by_user="Zolder")
+    client = setup.runtime_data
+    assert client.display_name == "Zolder" and client.name == "beeF"
+    now = int(dt_util.utcnow().timestamp())
+    async_fire_mqtt_message(hass, UP, rt(now))
+    await hass.async_block_till_done()
+    client._last_rx -= 10_000
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=61))
+    await hass.async_block_till_done()
+    issue = ir.async_get(hass).async_get_issue(DOMAIN, f"offline_{MAC}")
+    assert issue is not None and issue.translation_placeholders["name"] == "Zolder"
 
 
 async def test_sensor_fault_issue(hass, mqtt_mock, setup):

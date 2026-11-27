@@ -84,8 +84,33 @@
       "status": {
         "name": "Status",
         "state": {
+          "realtime": "Realtime",
           "online": "Online",
           "offline": "Offline"
+        },
+        "state_attributes": {
+          "last_report": {
+            "name": "Last report"
+          },
+          "report_type": {
+            "name": "Report type",
+            "state": {
+              "handshake": "Handshake",
+              "realtime": "Realtime",
+              "device_info": "Device info",
+              "history": "History",
+              "settings": "Settings"
+            }
+          },
+          "report_type_code": {
+            "name": "Report type code"
+          },
+          "expected_every_s": {
+            "name": "Expected every (s)"
+          },
+          "device_timestamp": {
+            "name": "Device timestamp"
+          }
         }
       },
       "battery_state": {
@@ -101,12 +126,6 @@
       },
       "mac_address": {
         "name": "MAC address"
-      },
-      "report_type": {
-        "name": "Report type"
-      },
-      "last_seen": {
-        "name": "Last seen"
       },
       "wifi_signal": {
         "name": "WiFi signal"

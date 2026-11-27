@@ -271,8 +271,14 @@ standaard uit.
 
 > "Scherm uit na" doet op recente firmware niets; Qingping-support noemt die instelling zelf nutteloos.
 
-**Diagnose:** status (online/offline), batterij en laadstatus, firmware, wifi-signaal, laatst gezien,
-sensorstatus, CO₂-kalibratiestatus.
+**Diagnose:** status (realtime/online/offline, met als attributen laatste rapport, rapporttype en
+verwacht interval), batterij en laadstatus, firmware, wifi-signaal, sensorstatus, CO₂-kalibratiestatus.
+
+| Status | Betekenis |
+|---|---|
+| `realtime` | Realtime-rapporten (type 12) komen binnen |
+| `online` | Er komen berichten binnen, maar geen realtime (alleen historie/info) |
+| `offline` | 5 minuten niets ontvangen |
 
 ## 9. Temperatuurfilter
 
@@ -292,14 +298,15 @@ Was de waarde **na** de sprong eigenlijk de juiste? Open dan de melding onder Re
 Aanbevolen in `configuration.yaml`; een volledig voorbeeld staat in
 [`examples/recorder.yaml`](../examples/recorder.yaml):
 
-**"Laatst gezien" zonder logboekspam.** Een tijdstempel die bij elk bericht verandert, geeft bij
-elk bericht een regel in *Activiteit*. Een `logbook: exclude` helpt daar niet tegen: op de
-apparaatpagina past Home Assistant die filter bewust niet toe. Daarom:
+**Laatste bericht zonder logboekspam.** Er is geen losse sensor "Laatst gezien" of "Rapporttype"
+meer; die staan als attributen op **Status**. Een tijdstempel die bij elk bericht verandert, geeft
+bij elk bericht een regel in *Activiteit*, en `logbook: exclude` helpt daar op de apparaatpagina niet
+tegen. Daarom:
 
-- wordt de **Status**-sensor bij elk bericht opnieuw gemeld zonder dat de waarde verandert. HA werkt
-  dan alleen `last_reported` bij: geen event, geen logboekregel, geen extra databaserij;
-- staat de sensor **Last seen standaard uit**. Bij een update vanaf 2.1 of ouder zet de integratie
-  hem eenmalig uit. Je mag hem weer aanzetten, maar dan krijg je per bericht een logboekregel.
+- verandert de status alleen bij een echte overgang (`realtime` / `online` / `offline`);
+- wordt het attribuut `last_report` hooguit eens per minuut bijgewerkt (niet opgenomen in de recorder);
+- wordt Status bij elk bericht opnieuw gemeld zonder wijziging. HA werkt dan alleen `last_reported`
+  bij: geen event, geen logboekregel, geen extra databaserij.
 
 Laatste bericht op je dashboard (Markdown-kaart):
 
@@ -313,9 +320,7 @@ content: >-
 recorder:
   exclude:
     entity_globs:
-      - sensor.*_last_seen
       - sensor.*_extra_data
-      - sensor.*_report_type
 ```
 
 ## 11. Privacy en beveiliging dichtzetten

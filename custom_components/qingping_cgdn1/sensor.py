@@ -1,6 +1,7 @@
 """Sensors for the Qingping CGDN1."""
 from __future__ import annotations
 
+import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
@@ -23,7 +24,14 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import slugify
 
 from .client import QingpingClient
-from .const import THROTTLE_EXTRA, THROTTLE_HOURLY, UNIT_PPM, UNIT_UG_M3
+from .const import (
+    STATUS_ATTR_REFRESH,
+    STATUS_OPTIONS,
+    THROTTLE_EXTRA,
+    THROTTLE_HOURLY,
+    UNIT_PPM,
+    UNIT_UG_M3,
+)
 from .entity import QingpingEntity
 
 BATTERY_STATES = {0: "discharging", 1: "charging", 2: "full"}
@@ -87,12 +95,6 @@ SENSORS: tuple[QingpingSensorDescription, ...] = (
     ),
     # --- diagnostics ------------------------------------------------------
     QingpingSensorDescription(
-        key="status", device_class=SensorDeviceClass.ENUM, options=["online", "offline"],
-        entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda c: "online" if c.online else "offline",
-        report_every_update=True,  # last message time = state.last_reported
-    ),
-    QingpingSensorDescription(
         key="battery_state", device_class=SensorDeviceClass.ENUM,
         options=list(BATTERY_STATES.values()), entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda c: BATTERY_STATES.get(c.data.get("battery_status")),
@@ -104,23 +106,6 @@ SENSORS: tuple[QingpingSensorDescription, ...] = (
     QingpingSensorDescription(
         key="mac_address", unique_suffix="mac", entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda c: c.mac,
-    ),
-    QingpingSensorDescription(
-        key="report_type", entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda c: c.last_report_type, min_interval=THROTTLE_HOURLY,
-    ),
-    QingpingSensorDescription(
-        # Changes on every message, so every message is a logbook entry (the
-        # logbook.exclude config is not applied on device pages). Disabled by
-        # default, like core's Z-Wave JS "Last seen"; use Status.last_reported.
-        key="last_seen", device_class=SensorDeviceClass.TIMESTAMP,
-        entity_category=EntityCategory.DIAGNOSTIC, value_fn=lambda c: c.last_seen,
-        entity_registry_enabled_default=False,
-        attrs_fn=lambda c: {
-            "last_report_type": c.last_report_type,
-            "device_timestamp": c.device_timestamp,
-        },
-        unrecorded=frozenset({"last_report_type", "device_timestamp"}),
     ),
     QingpingSensorDescription(
         key="wifi_signal", unique_suffix="wifi_rssi",
@@ -166,6 +151,7 @@ async def async_setup_entry(
             cls = type(f"QingpingSensor_{description.key}", (QingpingSensor,),
                        {"_unrecorded_attributes": description.unrecorded})
         entities.append(cls(client, description))
+    entities.append(QingpingStatusSensor(client))
     async_add_entities(entities)
 
 
@@ -194,3 +180,70 @@ class QingpingSensor(QingpingEntity, SensorEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
         return self.entity_description.attrs_fn(self.client)
+
+
+class QingpingStatusSensor(QingpingEntity, SensorEntity):
+    """Connectivity: realtime / online / offline, with the last report as attributes.
+
+    Replaces the former "Last seen" and "Report type" sensors.
+
+    * The state only changes on a real transition (one logbook entry each).
+    * ``report_type`` / ``expected_every_s`` changes are written immediately.
+    * ``last_report`` alone is rewritten at most every STATUS_ATTR_REFRESH s
+      (one recorder row per minute instead of one per message); in between
+      the unchanged state is re-reported, so ``state.last_reported`` still
+      holds the exact time of the last message - without an event.
+    """
+
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_options = STATUS_OPTIONS
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _unrecorded_attributes = frozenset({"last_report", "device_timestamp"})
+
+    def __init__(self, client: QingpingClient) -> None:
+        super().__init__(client, "status")
+        self._attrs: dict[str, Any] = {}
+        self._attrs_time = 0.0
+        self._refresh_attrs(force=True)
+
+    def _live_attrs(self) -> dict[str, Any]:
+        c = self.client
+        return {
+            "last_report": c.last_seen.isoformat(timespec="seconds") if c.last_seen else None,
+            "report_type": c.report_type_name,
+            "report_type_code": c.last_report_type,
+            "expected_every_s": c.expected_every_s,
+            "device_timestamp": c.device_timestamp,
+        }
+
+    def _refresh_attrs(self, force: bool = False) -> bool:
+        """Take over the live attributes when needed; True when they changed."""
+        live = self._live_attrs()
+        if live == self._attrs:
+            return False
+        now = time.monotonic()
+        only_time = all(
+            live[k] == self._attrs.get(k)
+            for k in live if k not in ("last_report", "device_timestamp")
+        )
+        if not force and only_time and now - self._attrs_time < STATUS_ATTR_REFRESH:
+            return False
+        self._attrs, self._attrs_time = live, now
+        return True
+
+    @property
+    def native_value(self) -> str:
+        return self.client.status
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        return self._attrs
+
+    def _handle_update(self) -> None:
+        if self.hass is None:
+            return
+        state_changed = self.native_value != (self._written or (None, None))[1]
+        self._refresh_attrs(force=state_changed)
+        self._written = self._snapshot()
+        # Always write: if nothing changed, HA only bumps last_reported (no event).
+        self.async_write_ha_state()

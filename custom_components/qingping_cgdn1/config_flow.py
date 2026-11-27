@@ -59,7 +59,7 @@ class QingpingConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Qingping CGDN1."""
 
     VERSION = 1
-    MINOR_VERSION = 2
+    MINOR_VERSION = 3
 
     def __init__(self) -> None:
         self._mac: str | None = None

@@ -84,8 +84,33 @@
       "status": {
         "name": "Status",
         "state": {
+          "realtime": "Realtime",
           "online": "Online",
           "offline": "Offline"
+        },
+        "state_attributes": {
+          "last_report": {
+            "name": "Laatste rapport"
+          },
+          "report_type": {
+            "name": "Rapporttype",
+            "state": {
+              "handshake": "Handshake",
+              "realtime": "Realtime",
+              "device_info": "Apparaatinfo",
+              "history": "Historie",
+              "settings": "Instellingen"
+            }
+          },
+          "report_type_code": {
+            "name": "Rapporttype-code"
+          },
+          "expected_every_s": {
+            "name": "Verwacht elke (s)"
+          },
+          "device_timestamp": {
+            "name": "Apparaattijd"
+          }
         }
       },
       "battery_state": {
@@ -101,12 +126,6 @@
       },
       "mac_address": {
         "name": "MAC-adres"
-      },
-      "report_type": {
-        "name": "Rapporttype"
-      },
-      "last_seen": {
-        "name": "Laatst gezien"
       },
       "wifi_signal": {
         "name": "WiFi-signaal"

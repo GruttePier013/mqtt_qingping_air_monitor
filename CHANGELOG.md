@@ -1,5 +1,27 @@
 # Changelog
 
+## 2.4.0
+### Integration
+- **Status** is now a connectivity sensor with three states: `realtime` (type-12 realtime reports arrive), `online` (messages arrive, but no realtime reports — history/info only) and `offline` (nothing for 5 min). Realtime counts as lost after max(60 s, 4 × update interval) without a type-12 report.
+- Status attributes: `last_report` (time of the last message, ISO), `report_type` (`realtime` / `history` / `device_info` / `settings` / `handshake`), `report_type_code` (`12`, `17`, …), `expected_every_s` (update interval in realtime/offline, device report interval when only online) and `device_timestamp`.
+- The separate **Last seen** and **Report type** sensors are removed (config entry 1.2 → 1.3 removes them from the entity registry). Status keeps its entity ID and history.
+- No logbook noise: the state only changes on a real transition; `last_report` alone is rewritten at most once a minute (one recorder row per minute), while `last_reported` still follows every message. `last_report` and `device_timestamp` are not recorded.
+- **Breaking:** `online` used to mean "any message"; it now means "messages, but not realtime". Automations that test `state == 'online'` should test `state != 'offline'`.
+
+## 2.3.1
+### Windows GUI
+- Bluetooth state next to *Scan* (on / off / disabled / no adapter / no Bluetooth LE), checked before every action.
+- Clear messages for: no adapter or no Bluetooth LE (use another computer or a USB adapter), Bluetooth off, airplane mode / adapter disabled, monitor left pairing mode, no connection; a scan that sees nothing at all is told apart from one that sees other devices but no Qingping.
+- *Read from device* renamed *Ask device* (NL *Opvragen*), with a tooltip; reports whether the device's Wi-Fi MAC matches the calculated one. Runs automatically when the list has no Wi-Fi MAC (macOS).
+- Wi-Fi and MQTT broker are one required block (old steps 2 and 3); missing fields are listed by name. An empty Wi-Fi password needs confirmation (open network).
+- Step 1 shows the integration logo, short instructions (USB power, Wi-Fi pairing mode) and an **NL / EN** language switch at the top right (remembered).
+- The MQTT password is shown and remembered (it travels to the device in plain text anyway); the Wi-Fi password stays hidden and is never saved.
+- No more "Done, the monitor now connects": the tool reports *Transfer complete* and lists what to check (Wi-Fi icon gone, `New client connected … as qingping-<MAC>` in the Mosquitto log, messages on the topic, device in Home Assistant). Same in the CLI.
+- Log area with tabs *Log* and *Bluetooth (raw)* (advertisements, GATT services, every packet written and notification, secrets masked unless shown), plus *Copy* and *Clear*.
+### Integration
+- Repair issues (offline, sensor fault, temperature step) show the device name as it is in Home Assistant, including a name you gave it yourself, instead of the name from setup (e.g. the MAC suffix).
+- Test that guards the translation files against frontend ICU errors (`UNCLOSED_TAG` from `<…>`, unbalanced braces) and checks that all languages have the same keys and placeholders.
+
 ## 2.3.0
 ### Added
 - **Windows 11 GUI** for Bluetooth provisioning (`tools/qingping-provision/qingping_provision_gui.py`): scan, pick the monitor, Wi-Fi + broker, check, write with progress. Dutch/English following Windows, high-DPI, passwords never saved.
