@@ -23,15 +23,28 @@ The simplest way on Windows:
 
 The window has three steps:
 
-1. **Monitor:** put it in pairing mode, click **Scan**, and pick it from the list. The Wi-Fi MAC
-   (Bluetooth MAC − 2) is filled in automatically; *Read from device* asks the monitor itself.
-2. **Wi-Fi network:** SSID and password (2.4 GHz).
-3. **MQTT broker:** LAN IP, port, user and password for the monitor.
+1. **Monitor:** put it in pairing mode (always needed, also to change only the broker): hold the top bar
+   about 8 s until the large Wi-Fi icon appears, click **Scan**, and pick it from the list. The Wi-Fi MAC
+   (Bluetooth MAC − 2) is filled in automatically; *Ask device* reads it from the monitor over Bluetooth
+   and says whether it matches the calculated value (done automatically when the list has no Wi-Fi MAC,
+   as on macOS). Next to *Scan* the Bluetooth state is shown (on / off / disabled / no adapter).
+2. **Wi-Fi and MQTT broker**, one block, all required: SSID and password (2.4 GHz; an empty password
+   is only accepted after confirming it is an open network), broker LAN IP, port, user and password.
 
-**Check** validates and shows the configuration (passwords hidden). **Write to monitor** provisions
-it, with progress in the log. The language follows Windows (Dutch or English; `--lang en|nl` to force).
+**Check** validates and shows the configuration (passwords hidden). **Write to monitor** sends everything
+over Bluetooth, with progress in the log. The monitor confirms nothing, so the tool ends with
+*Transfer complete* and a checklist: Wi-Fi icon gone, `New client connected … as qingping-<MAC>` in the
+Mosquitto log (`not authorised` = wrong user or password), messages on the topic, and the device in
+Home Assistant. The *Bluetooth (raw)* tab shows every advertisement, the GATT
+services, each packet written and each notification (hex and text, passwords and link token masked
+unless *Show passwords in raw data* is ticked). *Copy* and *Clear* act on the tab that is open.
 
-Passwords are never saved. Network name, broker, port, user and prefix are remembered in
+Bluetooth problems get a specific message: no adapter or no Bluetooth LE (use another computer or a
+USB adapter), Bluetooth off, airplane mode / adapter disabled, monitor no longer in pairing mode,
+no connection, and a scan that sees nothing at all versus one that sees other devices but no
+Qingping. The language follows Windows (Dutch or English), can be switched with **NL / EN** at the top right, and is remembered; `--lang en|nl` forces it.
+
+The Wi-Fi password is never saved. Network name, broker, port, user, MQTT password (shown in plain text: it goes to the device unencrypted anyway), prefix and language are remembered in
 `%APPDATA%\QingpingProvision\settings.json`. Windows SmartScreen may warn about the unsigned exe:
 *More info → Run anyway*.
 

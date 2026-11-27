@@ -142,7 +142,7 @@ async def cmd_provision(args: argparse.Namespace) -> int:
             print("Dry run: nothing written.")
             return 0
 
-        await bp.provision(client, config, progress=lambda step: print(f"  → {step}"))
+        await bp.provision(client, config, progress=lambda step: print("  → all packets sent" if step == "done" else f"  → sending: {step}"))
     except bp.ProvisioningError as err:
         print(f"Error: {err}", file=sys.stderr)
         return 2
@@ -156,8 +156,12 @@ async def cmd_provision(args: argparse.Namespace) -> int:
             except Exception:  # noqa: BLE001
                 pass
 
-    print(f"\nDone. The monitor now joins '{args.ssid}' and should publish on {config.topic_write} "
-          "within about a minute.\nIn Home Assistant it appears under Settings → Devices & services → Discovered.")
+    print("\nTransfer complete: all settings were sent over Bluetooth. The monitor confirms nothing, so check:\n"
+          f"  1. The large Wi-Fi icon disappears; the monitor joins '{args.ssid}'.\n"
+          f"  2. Mosquitto log: 'New client connected ... as {config.client_id} ... u'{config.mqtt_username}''.\n"
+          "     'not authorised' means a wrong user or password: pairing mode on and write again.\n"
+          f"  3. Messages arrive on {config.topic_write} within about a minute.\n"
+          "  4. Home Assistant: Settings → Devices & services → Discovered (new monitor), or values again (existing).")
     return 0
 
 

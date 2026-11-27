@@ -166,6 +166,24 @@ async def test_offline_issue(hass, mqtt_mock, setup):
     assert ir.async_get(hass).async_get_issue(DOMAIN, f"offline_{MAC}") is None
 
 
+async def test_issue_uses_ha_device_name(hass, mqtt_mock, setup):
+    from homeassistant.helpers import device_registry as dr
+
+    registry = dr.async_get(hass)
+    device = registry.async_get_device(identifiers={(DOMAIN, MAC)})
+    registry.async_update_device(device.id, name_by_user="Zolder")
+    client = setup.runtime_data
+    assert client.display_name == "Zolder" and client.name == "beeF"
+    now = int(dt_util.utcnow().timestamp())
+    async_fire_mqtt_message(hass, UP, rt(now))
+    await hass.async_block_till_done()
+    client._last_rx -= 10_000
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=61))
+    await hass.async_block_till_done()
+    issue = ir.async_get(hass).async_get_issue(DOMAIN, f"offline_{MAC}")
+    assert issue is not None and issue.translation_placeholders["name"] == "Zolder"
+
+
 async def test_sensor_fault_issue(hass, mqtt_mock, setup):
     now = int(dt_util.utcnow().timestamp())
     async_fire_mqtt_message(hass, UP, rt(now, status=3))

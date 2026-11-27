@@ -115,7 +115,27 @@ class QingpingClient:
     # ------------------------------------------------------------ properties
     @property
     def name(self) -> str:
+        """Name given at setup (also the base of the entity IDs)."""
         return str(self.entry.data.get("name") or self.entry.title or self.mac)
+
+    def _device(self) -> dr.DeviceEntry | None:
+        registry = dr.async_get(self.hass)
+        return next(
+            (
+                d
+                for d in dr.async_entries_for_config_entry(registry, self.entry.entry_id)
+                if (DOMAIN, self.mac) in d.identifiers
+            ),
+            None,
+        )
+
+    @property
+    def display_name(self) -> str:
+        """Device name as shown in Home Assistant (renamed by the user or not), for repair texts."""
+        device = self._device()
+        if device is not None and (device.name_by_user or device.name):
+            return str(device.name_by_user or device.name)
+        return self.name
 
     @property
     def update_interval(self) -> int:
@@ -202,7 +222,7 @@ class QingpingClient:
                 self._last_rx or now - self._started > OFFLINE_TIMEOUT
             ):
                 self._offline_issue = True
-                repairs.raise_offline(self.hass, self.mac, self.name, OFFLINE_TIMEOUT // 60)
+                repairs.raise_offline(self.hass, self.mac, self.display_name, OFFLINE_TIMEOUT // 60)
             await self.async_publish_realtime()
             await self.settings.async_request_settings()
             return
@@ -334,7 +354,7 @@ class QingpingClient:
             self.sensor_flags = flags
             faulty = sorted(k for k, s in flags.items() if s not in (0, "0"))
             if faulty:
-                repairs.raise_sensor_fault(self.hass, self.mac, self.name, ", ".join(faulty))
+                repairs.raise_sensor_fault(self.hass, self.mac, self.display_name, ", ".join(faulty))
             else:
                 repairs.clear(self.hass, "sensor_fault", self.mac)
 
@@ -381,17 +401,9 @@ class QingpingClient:
             self.data["hw_version"] = hw
             changes["hw_version"] = hw
         if changes:
-            registry = dr.async_get(self.hass)
-            device = next(
-                (
-                    d
-                    for d in dr.async_entries_for_config_entry(registry, self.entry.entry_id)
-                    if (DOMAIN, self.mac) in d.identifiers
-                ),
-                None,
-            )
+            device = self._device()
             if device is not None:
-                registry.async_update_device(device.id, **changes)
+                dr.async_get(self.hass).async_update_device(device.id, **changes)
 
     # ---------------------------------------------------- temperature filter
     @callback
@@ -410,7 +422,7 @@ class QingpingClient:
                              self.mac, delta, self.temp_step, new_step)
                 self.temp_step = new_step
                 repairs.raise_temp_step(
-                    self.hass, self.entry.entry_id, self.mac, self.name, delta, new_step
+                    self.hass, self.entry.entry_id, self.mac, self.display_name, delta, new_step
                 )
         self._prev_raw, self._prev_raw_t = value, now
         value += self.temp_step
