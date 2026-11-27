@@ -1,0 +1,41 @@
+name: Release ZIP
+
+# Builds qingping_cgdn1.zip (HACS zip_release) + SHA-256 and attaches both to the release.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g. v2.4.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  zip:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ env.TAG }}
+      - name: Check manifest version
+        run: |
+          version=$(jq -r .version custom_components/qingping_cgdn1/manifest.json)
+          [ "v$version" = "$TAG" ] || { echo "manifest $version does not match tag $TAG"; exit 1; }
+      - name: Build ZIP
+        run: |
+          cd custom_components/qingping_cgdn1
+          zip -r -X ../../qingping_cgdn1.zip . -x '__pycache__/*' '*.pyc'
+          cd ../..
+          sha256sum qingping_cgdn1.zip > qingping_cgdn1.zip.sha256
+          cat qingping_cgdn1.zip.sha256
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          files: |
+            qingping_cgdn1.zip
+            qingping_cgdn1.zip.sha256
